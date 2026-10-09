@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Misi Pereka Muda RBT - Tingkatan 1 KBAT</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            orange: '#FF6B35',
+                            yellow: '#FFD166',
+                            teal: '#06D6A0',
+                            blue: '#118AB2',
+                            darkBlue: '#073B4C',
+                            purple: '#8338EC',
+                            pink: '#FF006E'
+                        }
+                    },
+                    fontFamily: {
+                        title: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #073B4C;
+            background-image: radial-gradient(#118AB2 1px, transparent 1px), radial-gradient(#118AB2 1px, #073B4C 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .btn-bounce {
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.15s ease;
+        }
+
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 0px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-shadow-sm {
+            box-shadow: 0 5px 0px rgba(0, 0, 0, 0.2);
+        }
+
+        .pulse-slow {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .shake-err {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #FF6B35;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4 text-slate-800">
+
+    <script>
+        // Web Audio Synthesizer for sound effects
+        const SoundFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playCorrect() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                osc.frequency.setValueAtTime(1046.50, now + 0.3);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            },
+            playWrong() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.setValueAtTime(196, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            },
+            playClick() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            },
+            playLevelUp() {
+                this.init();
+                if (this.ctx.state === 'suspended') this.ctx.resume();
+                const now = this.ctx.currentTime;
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(freq, now + (i * 0.12));
+                    gain.gain.setValueAtTime(0.15, now + (i * 0.12));
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + (i * 0.12) + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + (i * 0.12));
+                    osc.stop(now + (i * 0.12) + 0.3);
+                });
+            }
+        };
+    </script>
+
+    <div class="w-full max-w-2xl mx-auto my-auto relative">
+
+        <!-- ==================== SCREEN 1: SKRIN UTAMA ==================== -->
+        <div id="screen-main" class="bg-white rounded-3xl p-5 sm:p-8 card-shadow border-4 border-brand-yellow text-center relative overflow-hidden">
+            <div class="absolute -top-10 -left-10 w-28 h-28 bg-brand-yellow/20 rounded-full blur-lg pointer-events-none"></div>
+            <div class="absolute -bottom-10 -right-10 w-28 h-28 bg-brand-teal/20 rounded-full blur-lg pointer-events-none"></div>
+
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-tr from-brand-orange to-brand-yellow text-white rounded-2xl shadow-lg mb-3 pulse-slow">
+                <i class="fa-solid fa-lightbulb text-4xl"></i>
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl font-title font-bold text-brand-darkBlue leading-tight tracking-wide">
+                MISI PEREKA MUDA RBT
+            </h1>
+            <p class="text-slate-500 font-bold text-sm sm:text-base mt-1">
+                <span class="bg-brand-teal/20 text-brand-darkBlue px-3 py-1 rounded-full text-xs sm:text-sm font-extrabold inline-block">
+                    <i class="fa-solid fa-brain mr-1 text-brand-purple"></i> Tingkatan 1 • Edisi Gambar & KBAT
+                </span>
+            </p>
+
+            <div class="my-6 bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 text-left">
+                <label for="player-name" class="block font-title text-slate-700 font-bold mb-2 text-sm sm:text-base">
+                    <i class="fa-solid fa-user-astronaut text-brand-orange mr-1"></i> Nama Panggilan Anda:
+                </label>
+                <input type="text" id="player-name" placeholder="Contoh: Ali / Siti / Pereka Hebat" 
+                       class="w-full px-4 py-3 border-2 border-brand-blue/30 rounded-xl focus:border-brand-orange focus:outline-none text-slate-800 font-bold text-lg bg-white shadow-inner">
+                <p id="name-error" class="text-red-500 text-xs font-bold mt-1 hidden">Sila masukkan nama anda dahulu!</p>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="startGame()" class="btn-bounce w-full bg-brand-teal hover:bg-emerald-400 text-brand-darkBlue font-title text-xl font-bold py-4 px-6 rounded-2xl card-shadow-sm flex items-center justify-center gap-2 border-b-4 border-emerald-600">
+                    <i class="fa-solid fa-play text-2xl"></i> MULA BERMAIN
+                </button>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="openModal('instructions-modal')" class="btn-bounce bg-brand-blue hover:bg-sky-500 text-white font-title text-base sm:text-lg font-bold py-3 px-4 rounded-xl border-b-4 border-blue-800 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-book-open"></i> ARAHAN
+                    </button>
+                    <button onclick="openModal('objectives-modal')" class="btn-bounce bg-brand-purple hover:bg-purple-500 text-white font-title text-base sm:text-lg font-bold py-3 px-4 rounded-xl border-b-4 border-purple-900 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bullseye"></i> OBJEKTIF
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400 font-bold">
+                <span><i class="fa-solid fa-layer-group text-brand-orange"></i> 5 Tahap Misi</span>
+                <span><i class="fa-solid fa-image text-brand-teal"></i> 25 Soalan Bergambar</span>
+                <span><i class="fa-solid fa-trophy text-brand-yellow"></i> 250 Mata Maksimum</span>
+            </div>
+        </div>
+
+
+        <!-- ==================== SCREEN 2: GAMEPLAY ==================== -->
+        <div id="screen-game" class="hidden bg-white rounded-3xl p-4 sm:p-6 card-shadow border-4 border-brand-blue relative">
+            
+            <!-- Top Status Bar -->
+            <div class="flex items-center justify-between gap-2 mb-4 bg-slate-100 p-3 rounded-2xl border border-slate-200">
+                <div class="flex items-center gap-2">
+                    <span id="level-badge" class="bg-brand-purple text-white text-xs sm:text-sm font-title font-bold px-3 py-1 rounded-xl shadow-sm">
+                        Tahap 1
+                    </span>
+                    <span id="player-display" class="font-bold text-slate-700 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[150px]">
+                        Pereka
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-brand-yellow/30 text-brand-darkBlue font-title font-bold px-3 py-1 rounded-xl text-xs sm:text-sm flex items-center gap-1 border border-brand-yellow">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span id="score-text">0</span> Mata
+                    </div>
+                    <button onclick="confirmExit()" class="text-slate-400 hover:text-red-500 text-lg p-1" title="Keluar">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-1">
+                    <span>Halaman / Soalan <span id="q-num">1</span> daripada <span id="total-q-num">25</span></span>
+                    <span id="progress-percent">4%</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden p-0.5 border border-slate-300">
+                    <div id="progress-fill" class="bg-gradient-to-r from-brand-orange to-brand-teal h-full rounded-full transition-all duration-300" style="width: 4%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 sm:p-5 mb-4 relative">
+                <!-- Visual Container for Real Photos or SVGs -->
+                <div id="illustration-container" class="w-full h-44 sm:h-52 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2 mb-3 shadow-inner overflow-hidden relative">
+                    <!-- Dynamic image or SVG inserted here -->
+                </div>
+
+                <h2 id="question-text" class="font-title text-base sm:text-lg font-bold text-brand-darkBlue leading-snug">
+                    Memuatkan soalan...
+                </h2>
+            </div>
+
+            <!-- Answer Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <!-- Buttons rendered dynamically -->
+            </div>
+
+            <!-- Feedback Banner -->
+            <div id="feedback-box" class="hidden rounded-2xl p-4 mb-4 text-left transition-all">
+                <div class="flex items-start gap-3">
+                    <div id="feedback-icon" class="text-2xl pt-0.5"></div>
+                    <div>
+                        <h4 id="feedback-title" class="font-title font-bold text-lg leading-tight"></h4>
+                        <p id="feedback-desc" class="text-xs sm:text-sm font-semibold mt-1 leading-relaxed opacity-90"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action Button -->
+            <div class="flex justify-end">
+                <button id="btn-next" onclick="nextQuestion()" disabled class="btn-bounce bg-slate-300 text-slate-500 font-title text-base font-bold py-3 px-6 rounded-xl border-b-4 border-slate-400 cursor-not-allowed flex items-center gap-2">
+                    <span>SOALAN SETERUSNYA</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ==================== SCREEN 3: RESULT SCREEN ==================== -->
+        <div id="screen-results" class="hidden bg-white rounded-3xl p-6 sm:p-8 card-shadow border-4 border-brand-yellow text-center relative overflow-hidden">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-tr from-brand-yellow to-brand-orange text-white rounded-3xl shadow-xl mb-4 pulse-slow">
+                <i id="result-trophy-icon" class="fa-solid fa-trophy text-5xl text-amber-100"></i>
+            </div>
+
+            <h2 class="text-2xl sm:text-3xl font-title font-bold text-brand-darkBlue">
+                TAHNIAH, <span id="res-player-name" class="text-brand-orange">PEREKA</span>!
+            </h2>
+            <p id="res-motive" class="text-slate-600 font-bold text-sm sm:text-base mt-1">
+                Anda telah menyempurnakan Misi Pereka Muda RBT KBAT!
+            </p>
+
+            <div class="my-6 bg-gradient-to-br from-slate-50 to-slate-100 border-2 border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">JUMLAH MARKAH</div>
+                <div class="text-5xl font-title font-extrabold text-brand-darkBlue mb-3">
+                    <span id="res-score">0</span> <span id="max-score-text" class="text-2xl text-slate-400">/ 250</span>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200 text-center">
+                    <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl">
+                        <div class="text-emerald-600 text-xs font-bold"><i class="fa-solid fa-circle-check"></i> Betul</div>
+                        <div id="res-correct" class="font-title font-extrabold text-lg text-emerald-700">0</div>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-200 p-2 rounded-xl">
+                        <div class="text-rose-600 text-xs font-bold"><i class="fa-solid fa-circle-xmark"></i> Salah</div>
+                        <div id="res-wrong" class="font-title font-extrabold text-lg text-rose-700">0</div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 p-2 rounded-xl">
+                        <div class="text-amber-600 text-xs font-bold"><i class="fa-solid fa-percent"></i> Peratus</div>
+                        <div id="res-percent" class="font-title font-extrabold text-lg text-amber-700">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unlocked Badges Section -->
+            <div class="mb-6">
+                <h4 class="font-title text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">LENCANA DIPEROLEHI</h4>
+                <div class="flex justify-center flex-wrap gap-2">
+                    <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex flex-col items-center w-20">
+                        <i class="fa-solid fa-seedling text-xl text-emerald-500 mb-1"></i>
+                        <span class="text-[9px] font-bold text-slate-600">Tunas</span>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex flex-col items-center w-20">
+                        <i class="fa-solid fa-pen-ruler text-xl text-brand-blue mb-1"></i>
+                        <span class="text-[9px] font-bold text-slate-600">Lakaran</span>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex flex-col items-center w-20">
+                        <i class="fa-solid fa-droplet text-xl text-teal-500 mb-1"></i>
+                        <span class="text-[9px] font-bold text-slate-600">Fertigasi</span>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex flex-col items-center w-20">
+                        <i class="fa-solid fa-brain text-xl text-brand-purple mb-1"></i>
+                        <span class="text-[9px] font-bold text-slate-600">Pakar KBAT</span>
+                    </div>
+                    <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex flex-col items-center w-20">
+                        <i class="fa-solid fa-crown text-xl text-amber-500 mb-1"></i>
+                        <span class="text-[9px] font-bold text-slate-600">Adiwira</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="reviewAnswers()" class="btn-bounce w-full bg-brand-blue hover:bg-sky-500 text-white font-title text-lg font-bold py-3.5 px-6 rounded-2xl card-shadow-sm flex items-center justify-center gap-2 border-b-4 border-blue-800">
+                    <i class="fa-solid fa-magnifying-glass font-bold"></i> SEMAK JAWAPAN & GAMBAR
+                </button>
+                <button onclick="resetGame()" class="btn-bounce w-full bg-brand-teal hover:bg-emerald-400 text-brand-darkBlue font-title text-lg font-bold py-3.5 px-6 rounded-2xl card-shadow-sm flex items-center justify-center gap-2 border-b-4 border-emerald-600">
+                    <i class="fa-solid fa-rotate-right"></i> MAIN SEMULA
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ==================== MODALS ==================== -->
+    <div id="instructions-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full border-4 border-brand-blue card-shadow relative">
+            <h3 class="font-title text-2xl font-bold text-brand-darkBlue mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-circle-info text-brand-blue"></i> Cara Bermain
+            </h3>
+            <ul class="space-y-2 text-slate-600 text-sm font-semibold mb-6">
+                <li class="flex items-start gap-2">
+                    <span class="bg-brand-blue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">1</span>
+                    <span>Masukkan nama anda dan pilih jawapan tepat.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="bg-brand-blue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">2</span>
+                    <span>Terdapat <strong>25 soalan bergambar</strong> termasuk 10 soalan KBAT.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="bg-brand-blue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">3</span>
+                    <span>Setiap soalan betul memberi <strong>10 mata</strong>.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span class="bg-brand-blue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5">4</span>
+                    <span>Perhatikan gambar dengan teliti sebelum menjawab!</span>
+                </li>
+            </ul>
+            <button onclick="closeModal('instructions-modal')" class="btn-bounce w-full bg-brand-orange text-white font-title text-lg font-bold py-3 rounded-xl border-b-4 border-orange-700">
+                FAHAM & TUTUP
+            </button>
+        </div>
+    </div>
+
+    <div id="objectives-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full border-4 border-brand-purple card-shadow relative">
+            <h3 class="font-title text-2xl font-bold text-brand-darkBlue mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-bullseye text-brand-purple"></i> Objektif Pembelajaran
+            </h3>
+            <p class="text-xs text-slate-500 font-bold mb-3">DSKP RBT Tingkatan 1 KSSM & KBAT:</p>
+            <ul class="space-y-2 text-slate-700 text-xs sm:text-sm font-semibold mb-6">
+                <li class="bg-purple-50 p-2.5 rounded-xl border border-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-check text-brand-purple"></i> Memahami Elemen & Prinsip Reka Bentuk.
+                </li>
+                <li class="bg-purple-50 p-2.5 rounded-xl border border-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-check text-brand-purple"></i> Teknik Lakaran Isometrik & Perspektif.
+                </li>
+                <li class="bg-purple-50 p-2.5 rounded-xl border border-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-check text-brand-purple"></i> Sistem Fertigasi & Reka Bentuk Fesyen.
+                </li>
+                <li class="bg-purple-50 p-2.5 rounded-xl border border-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-check text-brand-purple"></i> <strong>Aplikasi KBAT:</strong> Menganalisis masalah & penyelesaian inovatif.
+                </li>
+            </ul>
+            <button onclick="closeModal('objectives-modal')" class="btn-bounce w-full bg-brand-purple text-white font-title text-lg font-bold py-3 rounded-xl border-b-4 border-purple-900">
+                TUTUP
+            </button>
+        </div>
+    </div>
+
+    <div id="level-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center border-4 border-brand-yellow card-shadow">
+            <div id="lvl-modal-icon" class="w-20 h-20 bg-brand-yellow rounded-2xl flex items-center justify-center text-4xl text-white mx-auto mb-3 shadow-lg">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h3 id="lvl-modal-title" class="font-title text-2xl font-bold text-brand-darkBlue">TAHAP SELESAI!</h3>
+            <p id="lvl-modal-desc" class="text-slate-600 font-bold text-sm my-2">Syabas! Anda telah membuka lencana baharu.</p>
+            <div id="lvl-modal-badge" class="bg-slate-100 p-3 rounded-2xl border border-slate-200 font-title font-extrabold text-brand-orange text-lg my-3">
+                Lencana: Pereka Tunas
+            </div>
+            <button onclick="closeLevelModal()" class="btn-bounce w-full bg-brand-teal text-brand-darkBlue font-title text-lg font-bold py-3 rounded-xl border-b-4 border-emerald-600">
+                TERUSKAN MISI <i class="fa-solid fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="review-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-5 z-50">
+        <div class="bg-white rounded-3xl p-5 max-w-xl w-full h-[85vh] flex flex-col border-4 border-brand-blue card-shadow">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-200">
+                <h3 class="font-title text-xl font-bold text-brand-darkBlue">
+                    <i class="fa-solid fa-book-bookmark text-brand-blue mr-1"></i> Semakan Jawapan & Gambar
+                </h3>
+                <button onclick="closeModal('review-modal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold px-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div id="review-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-1 text-left">
+                <!-- Dynamically filled with reviewed questions -->
+            </div>
+
+            <div class="pt-3 mt-2 border-t border-slate-200">
+                <button onclick="closeModal('review-modal')" class="btn-bounce w-full bg-brand-blue text-white font-title text-base font-bold py-3 rounded-xl border-b-4 border-blue-800">
+                    TUTUP SEMAKAN
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // 25 Form 1 RBT Questions with real photos and concise KBAT questions for struggling readers
+        const questionsDB = [
+            // --- TAHAP 1: KENALI PEREKA (Q1-Q5) ---
+            {
+                level: 1,
+                levelTitle: "Tahap 1: Asas Reka Bentuk",
+                question: "Apakah maksud <b>'Reka Bentuk'</b>?",
+                options: [
+                    "Pengagihan makanan secara automatik",
+                    "Susunan bahan secara terancang untuk buat produk",
+                    "Aktiviti bersukan di luar rumah",
+                    "Proses menjual barang di kedai"
+                ],
+                answer: 1,
+                explanation: "Reka bentuk ialah penyusunan bahan secara terancang untuk menghasilkan produk berguna.",
+                image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pereka membuat produk terancang"
+            },
+            {
+                level: 1,
+                levelTitle: "Tahap 1: Asas Reka Bentuk",
+                question: "Lihat gambar. Elemen permukaan yang <b>kasar atau licin</b> dipanggil...",
+                options: [
+                    "Keseimbangan",
+                    "Tekstur",
+                    "Pengulangan",
+                    "Harmoni"
+                ],
+                answer: 1,
+                explanation: "Tekstur ialah rasa permukaan objek seperti kasar, licin, atau berkilat.",
+                image: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Tekstur permukaan kasar dan licin"
+            },
+            {
+                level: 1,
+                levelTitle: "Tahap 1: Asas Reka Bentuk",
+                question: "Kedua-dua belah objek ini kelihatan <b>sama berat dan seimbang</b>. Apakah prinsip ini?",
+                options: [
+                    "Kontras",
+                    "Keseimbangan Simetri",
+                    "Keringkasan",
+                    "Penekanan"
+                ],
+                answer: 1,
+                explanation: "Keseimbangan Simetri bermaksud bahagian kiri dan kanan adalah sama padan.",
+                image: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Keseimbangan simetri"
+            },
+            {
+                level: 1,
+                levelTitle: "Tahap 1: Asas Reka Bentuk",
+                question: "Pereka yang baik <b>tidak meniru</b> karya orang lain. Apakah etika ini?",
+                options: [
+                    "Keaslian",
+                    "Keselamatan",
+                    "Kreativiti",
+                    "Komersial"
+                ],
+                answer: 0,
+                explanation: "Keaslian bermaksud rekaan sendiri dan jujur tanpa menciplak.",
+                image: "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Melukis idea asli"
+            },
+            {
+                level: 1,
+                levelTitle: "Tahap 1: Asas Reka Bentuk",
+                question: "Lihat rajah. Cantuman dari <b>Titik A ke Titik B</b> menghasilkan...",
+                options: [
+                    "Garisan",
+                    "Ruang",
+                    "Warna",
+                    "Saiz"
+                ],
+                answer: 0,
+                explanation: "Garisan terbentuk apabila dua titik disambungkan.",
+                svg: `<svg viewBox="0 0 200 120" class="w-full h-full">
+                    <circle cx="30" cy="60" r="8" fill="#FF6B35"/>
+                    <circle cx="170" cy="60" r="8" fill="#FF6B35"/>
+                    <path d="M 38 60 L 162 60" stroke="#118AB2" stroke-width="6"/>
+                    <text x="30" y="90" text-anchor="middle" font-family="Fredoka" font-size="12" fill="#073B4C" font-weight="bold">Titik A</text>
+                    <text x="170" y="90" text-anchor="middle" font-family="Fredoka" font-size="12" fill="#073B4C" font-weight="bold">Titik B</text>
+                    <text x="100" y="45" text-anchor="middle" font-family="Fredoka" font-size="14" fill="#06D6A0" font-weight="bold">GARISAN</text>
+                </svg>`
+            },
+
+            // --- TAHAP 2: LAKARAN & MOCK-UP (Q6-Q10) ---
+            {
+                level: 2,
+                levelTitle: "Tahap 2: Lakaran & Mock-up",
+                question: "Berapakah sudut paksi condong untuk <b>Lakaran Isometrik</b>?",
+                options: [
+                    "45°",
+                    "30°",
+                    "60°",
+                    "90°"
+                ],
+                answer: 1,
+                explanation: "Lakaran Isometrik dilukis menggunakan sudut 30° dari garisan mendatar.",
+                image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Lakaran isometrik binaan 3D"
+            },
+            {
+                level: 2,
+                levelTitle: "Tahap 2: Lakaran & Mock-up",
+                question: "Dalam gambar ini, semua garisan bertemu pada satu titik. Apakah nama titik itu?",
+                options: [
+                    "Titik Tengah",
+                    "Titik Lenyap (TL)",
+                    "Titik Sudut",
+                    "Titik Akhir"
+                ],
+                answer: 1,
+                explanation: "Titik Lenyap (TL) ialah titik fokus dalam lakaran perspektif.",
+                image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pandangan perspektif dengan titik lenyap"
+            },
+            {
+                level: 2,
+                levelTitle: "Tahap 2: Lakaran & Mock-up",
+                question: "Apakah nama borang awal untuk mencatat <b>kehendak pelanggan</b>?",
+                options: [
+                    "Borang Projek Brief",
+                    "Manual Pengguna",
+                    "Resit Pembelian",
+                    "Borang Kehadiran"
+                ],
+                answer: 0,
+                explanation: "Borang Projek Brief mencatat maklumat awal bersama pelanggan.",
+                image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Mengisi borang projek brief"
+            },
+            {
+                level: 2,
+                levelTitle: "Tahap 2: Lakaran & Mock-up",
+                question: "Mengapa pereka membuat <b>Mock-up 3D</b> daripada kadbod dahulu?",
+                options: [
+                    "Untuk dijual mahal",
+                    "Untuk melihat bentuk dan menilai produk",
+                    "Untuk simpan dalam plastik",
+                    "Untuk dibuang terus"
+                ],
+                answer: 1,
+                explanation: "Mock-up ialah model olok-olok untuk menilai bentuk fizikal produk.",
+                image: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Mock-up kadbod produk"
+            },
+            {
+                level: 2,
+                levelTitle: "Tahap 2: Lakaran & Mock-up",
+                question: "Lakaran yang menunjukkan gambaran <b>3 Dimensi (3D)</b> dipanggil...",
+                options: [
+                    "Lakaran Piktorial",
+                    "Lakaran Teks",
+                    "Lakaran Karangan",
+                    "Lakaran Nota"
+                ],
+                answer: 0,
+                explanation: "Lakaran Piktorial memaparkan pandangan 3D produk.",
+                image: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Lakaran piktorial 3D"
+            },
+
+            // --- TAHAP 3: FERTIGASI & FESYEN (Q11-Q15) ---
+            {
+                level: 3,
+                levelTitle: "Tahap 3: Fertigasi & Fesyen",
+                question: "Sistem Fertigasi menyalurkan <b>air dan baja</b> terus ke bahagian...",
+                options: [
+                    "Akar pokok",
+                    "Daun pokok",
+                    "Batang pokok",
+                    "Bunga pokok"
+                ],
+                answer: 0,
+                explanation: "Fertigasi memberikan nutrien baja cecair terus ke zon akar pokok.",
+                image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Sistem pengairan fertigasi akar"
+            },
+            {
+                level: 3,
+                levelTitle: "Tahap 3: Fertigasi & Fesyen",
+                question: "Lihat gambar alatan ini. Apakah fungsi <b>Pemasa (Timer)</b>?",
+                options: [
+                    "Mengawal masa siraman automatik",
+                    "Memotong batang pokok",
+                    "Menimbang berat pokok",
+                    "Menyimpan air hujan"
+                ],
+                answer: 0,
+                explanation: "Pemasa (Timer) mengawal jadual masa pam air dihidupkan.",
+                image: "https://images.unsplash.com/photo-1508962914676-134849a727f0?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pemasa masa automatik"
+            },
+            {
+                level: 3,
+                levelTitle: "Tahap 3: Fertigasi & Fesyen",
+                question: "Alatan fleksibel ini digunakan untuk <b>mengukur badan</b> dalam reka bentuk fesyen. Apakah namanya?",
+                options: [
+                    "Pita Pengukur",
+                    "Pembaris Besi",
+                    "Roda Surih",
+                    "Gunting Kain"
+                ],
+                answer: 0,
+                explanation: "Pita pengukur fleksibel mengikut bentuk badan untuk mengambil ukuran fesyen.",
+                image: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pita pengukur fesyen"
+            },
+            {
+                level: 3,
+                levelTitle: "Tahap 3: Fertigasi & Fesyen",
+                question: "Alatan bergigi ini digunakan bersama kertas karbon untuk <b>menanda garisan pada kain</b>. Namanya ialah...",
+                options: [
+                    "Roda Surih",
+                    "Kacip Fesyen",
+                    "Pembaris T",
+                    "Peniti"
+                ],
+                answer: 0,
+                explanation: "Roda surih diputar atas kertas karbon untuk menanda garisan pola kain.",
+                svg: `<svg viewBox="0 0 200 120" class="w-full h-full">
+                    <rect x="85" y="15" width="12" height="60" rx="4" fill="#FF6B35" stroke="#073B4C" stroke-width="2"/>
+                    <circle cx="91" cy="85" r="16" fill="#CBD5E1" stroke="#073B4C" stroke-width="2"/>
+                    <path d="M 91 69 L 91 101 M 75 85 L 107 85 M 80 74 L 102 96 M 80 96 L 102 74" stroke="#073B4C" stroke-width="2"/>
+                    <text x="100" y="114" text-anchor="middle" font-family="Fredoka" font-size="12" fill="#073B4C" font-weight="bold">Roda Surih Bergigi</text>
+                </svg>`
+            },
+            {
+                level: 3,
+                levelTitle: "Tahap 3: Fertigasi & Fesyen",
+                question: "Apakah bentuk badan yang mempunyai <b>dada dan pinggul seimbang</b> serta pinggang yang ramping?",
+                options: [
+                    "Jam Pasir (Hourglass)",
+                    "Empat Segi",
+                    "Segi Tiga Terbalik",
+                    "Bulat"
+                ],
+                answer: 0,
+                explanation: "Bentuk badan Jam Pasir mempunyai pinggang yang jelas dan seimbang.",
+                image: "https://images.unsplash.com/photo-1537832816519-689ad163238b?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pakaian fesyen bentuk badan"
+            },
+
+            // --- TAHAP 4: CABARAN KBAT 1 (Q16-Q20) ---
+            {
+                level: 4,
+                levelTitle: "Tahap 4: Cabaran KBAT Analisis",
+                question: "<b>KBAT 1:</b> Tali beg sekolah Ali sering putus kerana beban berat. Apakah tindakan perbaikan yang paling sesuai?",
+                options: [
+                    "Tukar warna beg kepada hitam",
+                    "Gunakan jahitan berganda dan bahan tali lebih tebal",
+                    "Kecilkan saiz beg",
+                    "Gunakan gam kertas pada tali"
+                ],
+                answer: 1,
+                explanation: "Menambah ketebalan tali dan jahitan berganda menguatkan daya tahan beban beg.",
+                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Beg sekolah yang memerlukan ketahanan"
+            },
+            {
+                level: 4,
+                levelTitle: "Tahap 4: Cabaran KBAT Analisis",
+                question: "<b>KBAT 2:</b> Kerusi ini menyebabkan sakit belakang selepas duduk lama. Apakah masalah reka bentuk kerusi ini?",
+                options: [
+                    "Warna kerusi tidak cantik",
+                    "Kurang ciri Ergonomik (tidak mengikut bentuk badan)",
+                    "Harga kerusi terlalu murah",
+                    "Kerusi tiada roda"
+                ],
+                answer: 1,
+                explanation: "Ergonomik ialah reka bentuk yang memberi keselesaan dan kesihatan pengguna.",
+                image: "https://images.unsplash.com/photo-1580481072645-022f9a6d8310?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Kerusi tempat duduk kerja"
+            },
+            {
+                level: 4,
+                levelTitle: "Tahap 4: Cabaran KBAT Analisis",
+                question: "<b>KBAT 3:</b> Pokok dalam sistem fertigasi di ruang sempit ini bertukar kuning. Apakah punca utama yang perlu diperiksa?",
+                options: [
+                    "Bekerja terlalu cepat",
+                    "Tiub alur fertigasi tersumbat atau tiada baja",
+                    "Pasu warna merah",
+                    "Baja diganti dengan pasir"
+                ],
+                answer: 1,
+                explanation: "Jika tiub fertigasi tersumbat, pokok tidak mendapat air dan nutrien baja.",
+                image: "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Tanaman fertigasi bertukar kuning"
+            },
+            {
+                level: 4,
+                levelTitle: "Tahap 4: Cabaran KBAT Analisis",
+                question: "<b>KBAT 4:</b> Murid yang tinggi dan kurus mahu kelihatan lebih gempal. Garisan corak baju manakah yang paling sesuai?",
+                options: [
+                    "Garisan Melintang (Horizontal)",
+                    "Garisan Menegak (Vertical)",
+                    "Baju tanpa corak",
+                    "Baju hitam gelap"
+                ],
+                answer: 0,
+                explanation: "Garisan melintang memberi ilusi visual melebar dan kelihatan lebih gempal.",
+                image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Corak baju melintang"
+            },
+            {
+                level: 4,
+                levelTitle: "Tahap 4: Cabaran KBAT Analisis",
+                question: "<b>KBAT 5:</b> Kedai mahu botol minuman mesra alam dan mudah dikitar semula. Bahan manakah terbaik dipilih?",
+                options: [
+                    "Plastik sekali guna",
+                    "Kaca reka bentuk tebal / Plastik BPA-Free tahan lama",
+                    "Kertas nipis tanpa lapisan",
+                    "Besi karat"
+                ],
+                answer: 1,
+                explanation: "Bahan tahan lama dan BPA-Free boleh guna semula dan mesra alam sekitar.",
+                image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Botol minuman mesra alam"
+            },
+
+            // --- TAHAP 5: CABARAN KBAT MASTER (Q21-Q25) ---
+            {
+                level: 5,
+                levelTitle: "Tahap 5: Pakar Inovasi KBAT",
+                question: "<b>KBAT 6:</b> Rumah Puan Aminah tiada tanah dan kawasan terhad. Apakah sistem penanaman terbaik?",
+                options: [
+                    "Pertanian secara Menegak (Vertical Fertigation)",
+                    "Cangkul tanah luas",
+                    "Tanam dalam kotak kasut",
+                    "Timbun tanah di atas simen"
+                ],
+                answer: 0,
+                explanation: "Pertanian menegak menjimatkan ruang di kawasan kediaman terhad.",
+                image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pertanian fertigasi menegak"
+            },
+            {
+                level: 5,
+                levelTitle: "Tahap 5: Pakar Inovasi KBAT",
+                question: "<b>KBAT 7:</b> Mock-up cawan kertas tumbang apabila diisi air panas. Apakah tindakan penyelesaiannya?",
+                options: [
+                    "Luaskan dasar tapak cawan dan tebalkan dinding",
+                    "Warnakan cawan dengan cat air",
+                    "Gunakan kertas nipis lagi",
+                    "Kecilkan bahagian bawah cawan"
+                ],
+                answer: 0,
+                explanation: "Tapak yang lebih luas memberi kestabilan agar mock-up tidak mudah tumbang.",
+                image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Cawan minuman kertas"
+            },
+            {
+                level: 5,
+                levelTitle: "Tahap 5: Pakar Inovasi KBAT",
+                question: "<b>KBAT 8:</b> Mengapakah penting membuat <b>Pengujian dan Penilaian</b> pada mock-up produk?",
+                options: [
+                    "Untuk mencari kelemahan dan menambah baik produk",
+                    "Untuk terus buang ke dalam tong sampah",
+                    "Untuk tayang kepada rakan sahaja",
+                    "Untuk elak membuat lakaran"
+                ],
+                answer: 0,
+                explanation: "Pengujian membuktikan tahap kefungsian dan mengenal pasti kelemahan untuk diatasi.",
+                image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Menguji kelemahan mock-up"
+            },
+            {
+                level: 5,
+                levelTitle: "Tahap 5: Pakar Inovasi KBAT",
+                question: "<b>KBAT 9:</b> Warga emas sukar memegang pemegang cawan kecil. Pereka harus mengubah bentuk kepada...",
+                options: [
+                    "Pemegang ergonomik lebih besar dan bertali getah cengkam",
+                    "Licinkan pemegang cawan",
+                    "Buang pemegang cawan terus",
+                    "Kecilkan lagi pemegang"
+                ],
+                answer: 0,
+                explanation: "Pemegang besar berserta cengkaman getah memudahkan warga emas memegang cawan dengan selamat.",
+                image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Pemegang cawan ergonomik"
+            },
+            {
+                level: 5,
+                levelTitle: "Tahap 5: Pakar Inovasi KBAT",
+                question: "<b>KBAT 10:</b> Mengapakah penyaring diletakkan sebelum pam air dalam sistem fertigasi?",
+                options: [
+                    "Menapis kotoran agar tiub dan pam tidak tersumbat",
+                    "Menukar warna air menjadi biru",
+                    "Menyimpan air lebih banyak",
+                    "Memanaskan air baja"
+                ],
+                answer: 0,
+                explanation: "Penapis menghalang kotoran mendakan daripada menyumbatkan pam dan saluran mikro.",
+                image: "https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?w=600&auto=format&fit=crop&q=80",
+                imgAlt: "Penapis kotoran pam fertigasi"
+            }
+        ];
+
+        // --- GAME STATE ENGINE ---
+        let state = {
+            playerName: "",
+            currentQIndex: 0,
+            score: 0,
+            userAnswers: [],
+            answeredCurrent: false,
+            currentLevel: 1
+        };
+
+        function openModal(id) {
+            SoundFX.playClick();
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+
+        function closeModal(id) {
+            SoundFX.playClick();
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            if (!nameInput) {
+                document.getElementById('name-error').classList.remove('hidden');
+                SoundFX.playWrong();
+                return;
+            }
+            document.getElementById('name-error').classList.add('hidden');
+
+            SoundFX.playClick();
+            state.playerName = nameInput;
+            state.currentQIndex = 0;
+            state.score = 0;
+            state.userAnswers = [];
+            state.answeredCurrent = false;
+            state.currentLevel = 1;
+
+            document.getElementById('player-display').innerText = state.playerName;
+            document.getElementById('total-q-num').innerText = questionsDB.length;
+
+            document.getElementById('screen-main').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-results').classList.add('hidden');
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            state.answeredCurrent = false;
+            const qData = questionsDB[state.currentQIndex];
+
+            // Check level transition
+            if (qData.level !== state.currentLevel) {
+                state.currentLevel = qData.level;
+                showLevelModal(qData.level);
+                return;
+            }
+
+            // Update Header Status & Progress
+            document.getElementById('level-badge').innerText = qData.levelTitle;
+            document.getElementById('q-num').innerText = state.currentQIndex + 1;
+            document.getElementById('score-text').innerText = state.score;
+
+            const progressPct = Math.round(((state.currentQIndex + 1) / questionsDB.length) * 100);
+            document.getElementById('progress-percent').innerText = progressPct + '%';
+            document.getElementById('progress-fill').style.width = progressPct + '%';
+
+            // Insert Photo or SVG Graphic
+            const imgContainer = document.getElementById('illustration-container');
+            if (qData.image) {
+                imgContainer.innerHTML = `
+                    <img src="${qData.image}" alt="${qData.imgAlt || 'Gambar soalan'}" 
+                         class="w-full h-full object-cover rounded-lg shadow-sm transition-all duration-300 hover:scale-105"
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80';"/>
+                    <span class="absolute bottom-2 right-2 bg-slate-900/70 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        <i class="fa-solid fa-camera mr-1"></i> Gambar Sebenar
+                    </span>
+                `;
+            } else if (qData.svg) {
+                imgContainer.innerHTML = qData.svg;
+            }
+
+            // Render Question Text (with bold support)
+            document.getElementById('question-text').innerHTML = qData.question;
+
+            // Reset Options Container
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+
+            qData.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-bounce w-full text-left bg-white border-2 border-slate-200 hover:border-brand-blue rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm font-bold text-slate-700 shadow-sm flex items-center gap-3 transition-all';
+                btn.onclick = () => selectAnswer(idx);
+
+                const labelSpan = document.createElement('span');
+                labelSpan.className = 'w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-100 text-slate-600 font-title font-bold flex items-center justify-center flex-shrink-0 text-xs sm:text-sm border border-slate-300';
+                labelSpan.innerText = String.fromCharCode(65 + idx);
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'flex-1 leading-snug';
+                textSpan.innerText = optText;
+
+                btn.appendChild(labelSpan);
+                btn.appendChild(textSpan);
+                optsContainer.appendChild(btn);
+            });
+
+            // Reset Feedback & Next Button
+            document.getElementById('feedback-box').className = 'hidden rounded-2xl p-4 mb-4 text-left transition-all';
+            const btnNext = document.getElementById('btn-next');
+            btnNext.disabled = true;
+            btnNext.className = 'btn-bounce bg-slate-300 text-slate-500 font-title text-base font-bold py-3 px-6 rounded-xl border-b-4 border-slate-400 cursor-not-allowed flex items-center gap-2';
+        }
+
+        function selectAnswer(selectedIdx) {
+            if (state.answeredCurrent) return;
+            state.answeredCurrent = true;
+
+            const qData = questionsDB[state.currentQIndex];
+            const isCorrect = (selectedIdx === qData.answer);
+
+            state.userAnswers.push({
+                qIndex: state.currentQIndex,
+                selectedOpt: selectedIdx,
+                isCorrect: isCorrect
+            });
+
+            const optButtons = document.getElementById('options-container').children;
+
+            for (let i = 0; i < optButtons.length; i++) {
+                optButtons[i].onclick = null;
+                optButtons[i].classList.remove('hover:border-brand-blue', 'btn-bounce');
+
+                if (i === qData.answer) {
+                    optButtons[i].className = 'w-full text-left bg-emerald-50 border-2 border-emerald-500 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm font-bold text-emerald-900 shadow-sm flex items-center gap-3';
+                    optButtons[i].children[0].className = 'w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-500 text-white font-title font-bold flex items-center justify-center flex-shrink-0 text-xs sm:text-sm';
+                    optButtons[i].children[0].innerHTML = '<i class="fa-solid fa-check"></i>';
+                } else if (i === selectedIdx && !isCorrect) {
+                    optButtons[i].className = 'w-full text-left bg-rose-50 border-2 border-rose-400 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm font-bold text-rose-900 shadow-sm flex items-center gap-3 shake-err';
+                    optButtons[i].children[0].className = 'w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-rose-500 text-white font-title font-bold flex items-center justify-center flex-shrink-0 text-xs sm:text-sm';
+                    optButtons[i].children[0].innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                } else {
+                    optButtons[i].classList.add('opacity-50');
+                }
+            }
+
+            const fbBox = document.getElementById('feedback-box');
+            const fbIcon = document.getElementById('feedback-icon');
+            const fbTitle = document.getElementById('feedback-title');
+            const fbDesc = document.getElementById('feedback-desc');
+
+            fbBox.classList.remove('hidden');
+
+            if (isCorrect) {
+                SoundFX.playCorrect();
+                state.score += 10;
+                document.getElementById('score-text').innerText = state.score;
+
+                fbBox.className = 'rounded-2xl p-4 mb-4 text-left transition-all bg-emerald-100 border-2 border-emerald-400 text-emerald-900';
+                fbIcon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+                fbTitle.innerText = 'SYABAS! JAWAPAN BETUL! (+10 Mata)';
+            } else {
+                SoundFX.playWrong();
+                fbBox.className = 'rounded-2xl p-4 mb-4 text-left transition-all bg-rose-100 border-2 border-rose-400 text-rose-900';
+                fbIcon.innerHTML = '<i class="fa-solid fa-face-frown text-rose-600"></i>';
+                fbTitle.innerText = 'CUBA LAGI! JAWAPAN KURANG TEPAT.';
+            }
+
+            fbDesc.innerText = qData.explanation;
+
+            const btnNext = document.getElementById('btn-next');
+            btnNext.disabled = false;
+            btnNext.className = 'btn-bounce bg-brand-teal hover:bg-emerald-400 text-brand-darkBlue font-title text-base font-bold py-3 px-6 rounded-xl border-b-4 border-emerald-600 cursor-pointer flex items-center gap-2';
+        }
+
+        function nextQuestion() {
+            SoundFX.playClick();
+            state.currentQIndex++;
+
+            if (state.currentQIndex < questionsDB.length) {
+                renderQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        function showLevelModal(lvl) {
+            SoundFX.playLevelUp();
+            const modal = document.getElementById('level-modal');
+            const desc = document.getElementById('lvl-modal-desc');
+            const badge = document.getElementById('lvl-modal-badge');
+
+            if (lvl === 2) {
+                desc.innerText = 'Tahniah! Tahap 1 Selesai. Selamat datang ke Misi Lakaran!';
+                badge.innerText = 'Lencana: Master Lakaran ✏️';
+            } else if (lvl === 3) {
+                desc.innerText = 'Tahap 2 Selesai! Seterusnya Misi Fertigasi & Fesyen!';
+                badge.innerText = 'Lencana: Wira Fertigasi 💧';
+            } else if (lvl === 4) {
+                desc.innerText = 'Hebat! Bermula Cabaran Soalan KBAT & Analisis!';
+                badge.innerText = 'Lencana: Pakar KBAT 🧠';
+            } else if (lvl === 5) {
+                desc.innerText = 'Luar Biasa! Tahap Terakhir: Misi Inovasi Pereka Muda!';
+                badge.innerText = 'Lencana: Adiwira RBT 👑';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeLevelModal() {
+            closeModal('level-modal');
+            renderQuestion();
+        }
+
+        function finishGame() {
+            try {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 }
+                });
+            } catch (e) {}
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            document.getElementById('res-player-name').innerText = state.playerName.toUpperCase();
+            document.getElementById('res-score').innerText = state.score;
+
+            const totalQ = questionsDB.length;
+            const maxScore = totalQ * 10;
+            document.getElementById('max-score-text').innerText = `/ ${maxScore}`;
+
+            const correctCount = state.userAnswers.filter(a => a.isCorrect).length;
+            const wrongCount = totalQ - correctCount;
+            const percent = Math.round((correctCount / totalQ) * 100);
+
+            document.getElementById('res-correct').innerText = correctCount;
+            document.getElementById('res-wrong').innerText = wrongCount;
+            document.getElementById('res-percent').innerText = percent + '%';
+
+            const motiveElem = document.getElementById('res-motive');
+            const trophyIcon = document.getElementById('result-trophy-icon');
+
+            if (percent >= 80) {
+                motiveElem.innerText = 'Luar Biasa! Anda Pakar KBAT & Pereka Muda RBT Cemerlang!';
+                trophyIcon.className = 'fa-solid fa-crown text-5xl text-amber-200';
+            } else if (percent >= 50) {
+                motiveElem.innerText = 'Usaha yang baik! Semak gambar & penerangan untuk skor penuh!';
+                trophyIcon.className = 'fa-solid fa-trophy text-5xl text-amber-100';
+            } else {
+                motiveElem.innerText = 'Jangan putus asa! Tekan Semak Jawapan dan cuba sekali lagi!';
+                trophyIcon.className = 'fa-solid fa-medal text-5xl text-amber-200';
+            }
+        }
+
+        function reviewAnswers() {
+            SoundFX.playClick();
+            const listContainer = document.getElementById('review-list');
+            listContainer.innerHTML = '';
+
+            questionsDB.forEach((q, idx) => {
+                const userAns = state.userAnswers[idx];
+                const isCorrect = userAns ? userAns.isCorrect : false;
+                const chosenIdx = userAns ? userAns.selectedOpt : -1;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border-2 ${isCorrect ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-title font-bold px-2.5 py-1 rounded-lg ${isCorrect ? 'bg-emerald-200 text-emerald-800' : 'bg-rose-200 text-rose-800'}">
+                            Soalan ${idx + 1} • ${isCorrect ? 'BETUL (+10)' : 'SALAH'}
+                        </span>
+                        <span class="text-xs font-bold text-slate-500">${q.levelTitle}</span>
+                    </div>
+                    <h5 class="font-title font-bold text-slate-800 text-sm mb-2">${q.question}</h5>
+                    <div class="text-xs font-bold space-y-1 mb-2">
+                        <div class="${chosenIdx === q.answer ? 'text-emerald-700' : 'text-rose-600'}">
+                            Jawapan Anda: ${chosenIdx >= 0 ? q.options[chosenIdx] : 'Tiada'}
+                        </div>
+                        ${!isCorrect ? `<div class="text-emerald-700"><i class="fa-solid fa-circle-check"></i> Jawapan Betul: ${q.options[q.answer]}</div>` : ''}
+                    </div>
+                    <p class="text-xs bg-white/80 p-2.5 rounded-xl border border-slate-200 text-slate-600 leading-relaxed font-semibold">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> ${q.explanation}
+                    </p>
+                `;
+
+                listContainer.appendChild(card);
+            });
+
+            openModal('review-modal');
+        }
+
+        function resetGame() {
+            SoundFX.playClick();
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-main').classList.remove('hidden');
+        }
+
+        function confirmExit() {
+            if (confirm("Adakah anda pasti mahu kembali ke Skrin Utama? Markah semasa akan diganti.")) {
+                resetGame();
+            }
+        }
+    </script>
+</body>
+</html>
